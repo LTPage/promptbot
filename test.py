@@ -136,6 +136,6 @@ def pdgenerator(number, gender, era):
         #chosen_char.append(random.choice(list))
     #return chosen_char
 
-#print(generator(2))
-pdgenerator(3, 'Male', 'Main Series')
+print(generator(2))
+#pdgenerator(3, 'Male', 'Main Series')
 #print(pdgenerator(2, 'Male', 'Main Series'))

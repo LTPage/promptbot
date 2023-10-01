@@ -1,102 +1,18 @@
-#import hikari
+#filtering the names by category and/or gender
+#(ideally) a compile function to spit out a whole prompt
+ 
+import hikari
 import lightbulb
 import random
 import pandas as pd
-character_list = pd.read_csv('characters.csv')
+import list
+char_list = list.characters
+tropes_list = list.tropes
+words_list = list.words
 import discordtoken
 token = discordtoken.token 
-#first_line = pd.read_csv('first_Line.csv')
-#token = token.txt 
 
 
-characters = ['Any Death Eater',
-'Any Founder',
-'Any Gryffindor',
-'Any Hogwarts Ghost',
-'Any Hufflepuff',
-'Any Ministry Employee',
-'Any Muggle',
-'Any Order Member',
-'Any Professor',
-'Any Quidditch Player',
-'Any Ravenclaw',
-'Any Slytherin',
-'Albus Severus Potter',
-'Hugo Weasley',
-'James Sirius Potter',
-'Lily Luna Potter',
-'Rose Weasley',
-'Scorpius Malfoy',
-'Teddy Lupin',
-'Victoire Weasley',
-'Andromeda Tonks',
-'Arthur Weasley',
-'Barty Crouch Jr',
-'Bellatrix Lestrange',
-'Cornelius Fudge',
-'Dolores Umbridge',
-'Dorcas Meadowes',
-'Fenrir Greyback',
-'James Potter',
-'Regulus Black',
-'Kingsley Shacklebolt',
-'Lily Evans Potter',
-'Lucius Malfoy',
-'Marlene McKinnon',
-'Mary MacDonald',
-'Molly Weasley',
-'Narcissa Malfoy',
-'Peter Pettigrew',
-'Petunia Dursley',
-'Rabastan Lestrange',
-'Remus Lupin',
-'Rita Skeeter',
-'Rodolphus Lestrange',
-'Rubeus Hagrid',
-'Severus Snape',
-'Sirius Black',
-'Ted Tonks',
-'Tom Riddle/Voldemort',
-'Vernon Dursley',
-'Walburga Black',
-'Alicia Spinnet',
-'Angelina Johnson',
-'Bill Weasley',
-'Cedric Diggory',
-'Charlie Weasley',
-'Cho Chang',
-'Colin Creevey',
-'Cormac McLaggen',
-'Daphne Greengrass',
-'Dean Thomas',
-'Draco Malfoy',
-'Dudley Dursley',
-'Fleur Delacour',
-'Fred Weasley',
-'George Weasley',
-'Ginny Weasley',
-'Gregory Goyle',
-'Hannah Abbott',
-'Harry Potter',
-'Hermione Granger',
-'Katie Bell',
-'Lavender Brown',
-'Lee Jordan',
-'Luna Lovegood',
-'Marcus Flint',
-'Marietta Edgecombe',
-'Neville Longbottom',
-'Nymphadora Tonks',
-'Oliver Wood',
-'Padma Patil',
-'Pansy Parkinson',
-'Percy Weasley',
-'Romilda Vane',
-'Ron Weasley',
-'Seamus Finnegan',
-'Susan Bones',
-'Viktor Krum',
-'Vincent Crabbe']
 
 sentences = ["She found it amongst her mother's possessions.",
 "He had enjoyed ten years of being totally irresponsible.",
@@ -129,24 +45,22 @@ sentences = ["She found it amongst her mother's possessions.",
 
 bot = lightbulb.BotApp(
     token=token, 
-    #default_enabled_guilds=(996189253786677308)
+    default_enabled_guilds=(996189253786677308)
     )
 
-#@bot.listen(hikari.GuildMessageCreateEvent)
-#async def print_message(event):
-    #print(event.content)
-
-#@bot.listen(hikari.StartedEvent)
-#async def startMessage(event):
-    #print('Bot has started!')
-
+#checks bot is online
 @bot.command
 @lightbulb.command('ping', 'ping pong', hidden=True)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def ping(ctx):
     await ctx.respond("Pong!")
 
-
+#also checks bot is online, but fun!
+@bot.command
+@lightbulb.command('boo', 'scares bot', hidden=True)
+@lightbulb.implements(lightbulb.SlashCommand)
+async def boo(ctx):
+    await ctx.respond("Ahhhhh! 😱")
 
 
 @bot.command
@@ -155,7 +69,7 @@ async def ping(ctx):
 async def prompt(ctx):
     pass
 
-
+#basic character prompt
 @prompt.child
 @lightbulb.option('number', 'number of characters', type=int)
 @lightbulb.command('character', 'prompt characters')
@@ -164,9 +78,12 @@ async def character_prompt(ctx):
     chosen_char = []
     if ctx.options.number > 6:
         await ctx.respond("Too many characters! Try a number less than 5. You can always add more yourself!")
+    # I think there's actually a max limit option for numeric input
+    # so this should maybe get updated at some point
+
     else: 
         while len(chosen_char) < ctx.options.number:
-            char = random.choice(characters)
+            char = random.choice(char_list)
             if char not in chosen_char:
                 chosen_char.append(char)
             else:
@@ -174,12 +91,69 @@ async def character_prompt(ctx):
      
         await ctx.respond("Your characters are: " + ", ".join(chosen_char))
 
+#sentence prompt, not for CZ
 @prompt.child
 @lightbulb.command('sentence', 'prompt a starting sentence')
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def sentence_prompt(ctx):
     await ctx.respond(f'Your sentence is: \n > *"{random.choice(sentences)}"*')
 
+#tropes prompt, CZ
+@prompt.child
+@lightbulb.command('trope', 'generates two tropes')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def trope_prompt(ctx):
+    trope1 = random.choice(tropes_list)
+    trope2 = random.choice(tropes_list)
+    await ctx.respond(f"Your tropes are: \n * {trope1} \n* {trope2}")
+
+#word prompt, CZ default = 3
+@prompt.child
+@lightbulb.command('words', 'three randomly generated words')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def word_prompt(ctx):
+    chosen_words = []
+    for i in range(3):
+        chosen_words.append(random.choice(words_list))
+    await ctx.respond("Use these words to prompt your writing: \n* " + " \n* ".join(chosen_words))
+
+# word count bonus challenge (random number generator
+# limit to short 150-500/medium 500-900/long 900-2000, then random number no rounding within those parameters)
+@bot.command
+@lightbulb.command('wc', 'bonus challenge! set a word count limit')
+@lightbulb.implements(lightbulb.SlashCommandGroup)
+async def wc(ctx):
+    pass
+
+@wc.child
+@lightbulb.command('short', 'give me a short fic goal')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def short_fic(ctx):
+    await ctx.respond(f"Write a fic with exactly {random.randint(150, 500)} words.")
+
+
+
+@wc.child
+@lightbulb.command('medium', 'give me a medium fic goal')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def med_fic(ctx):
+    await ctx.respond(f"Write a fic with exactly {random.randint(500, 900)} words.")
+
+
+@wc.child
+@lightbulb.command('long', 'give me a long fic goal')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def long_fic(ctx):
+    await ctx.respond(f"Write a fic with exactly {random.randint(900, 2000)} words.")
+
+
+#testing space
+@prompt.child
+@lightbulb.command('testcharacter', 'prompt characters')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def test_character_prompt(ctx):
+    pass
+    #await ctx.respond(random.choice(char_list))
 
 
 #@bot.command
