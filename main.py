@@ -3,16 +3,16 @@
  
 import hikari
 import lightbulb
+import yuyo
 import random
 import pandas as pd
 import list
+import test2
 char_list = list.characters
 tropes_list = list.tropes
 words_list = list.words
 import discordtoken
 token = discordtoken.token 
-
-
 
 sentences = ["She found it amongst her mother's possessions.",
 "He had enjoyed ten years of being totally irresponsible.",
@@ -45,8 +45,9 @@ sentences = ["She found it amongst her mother's possessions.",
 
 bot = lightbulb.BotApp(
     token=token, 
-    default_enabled_guilds=(996189253786677308)
+    #default_enabled_guilds=(996189253786677308)
     )
+
 
 #checks bot is online
 @bot.command
@@ -63,6 +64,43 @@ async def boo(ctx):
     await ctx.respond("Ahhhhh! 😱")
 
 
+
+#prompt functions:
+def cz_characters(number):
+    chosen_char = []
+    while len(chosen_char) < number:
+        char = random.choice(char_list)
+        if char not in chosen_char:
+            chosen_char.append(char)
+        else:
+            pass
+    return " \n* ".join(chosen_char)
+
+def cz_length(length_choice):
+    if length_choice == 'short':
+        return f"{random.randint(150, 500)} words. "
+    elif length_choice == 'medium':
+        return f"{random.randint(500, 900)} words. "
+    elif length_choice == 'long':
+        return f"{random.randint(900, 2000)} words. "
+    else:
+        return f"{random.randint(150, 2000)} words. "
+
+
+
+def cz_tropes(number):
+    chosen_tropes = []
+    while len(chosen_tropes) < number:
+        chosen_tropes.append(random.choice(tropes_list))
+    return " \n* ".join(chosen_tropes)
+
+#default 3 for CZ, update with prompting later
+def cz_words():
+    chosen_words = []
+    for i in range(3):
+        chosen_words.append(random.choice(words_list))
+    return " \n* ".join(chosen_words)
+
 @bot.command
 @lightbulb.command('prompt', 'generate prompt')
 @lightbulb.implements(lightbulb.SlashCommandGroup)
@@ -71,25 +109,12 @@ async def prompt(ctx):
 
 #basic character prompt
 @prompt.child
-@lightbulb.option('number', 'number of characters', type=int)
+@lightbulb.option('number', 'number of characters', type=int, max_value=6, default=2)
 @lightbulb.command('character', 'prompt characters')
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def character_prompt(ctx):
-    chosen_char = []
-    if ctx.options.number > 6:
-        await ctx.respond("Too many characters! Try a number less than 5. You can always add more yourself!")
-    # I think there's actually a max limit option for numeric input
-    # so this should maybe get updated at some point
-
-    else: 
-        while len(chosen_char) < ctx.options.number:
-            char = random.choice(char_list)
-            if char not in chosen_char:
-                chosen_char.append(char)
-            else:
-                pass
-     
-        await ctx.respond("Your characters are: " + ", ".join(chosen_char))
+    characters = cz_characters(ctx.options.number)
+    await ctx.respond("Your characters are: " + ", ".join(characters))
 
 #sentence prompt, not for CZ
 @prompt.child
@@ -100,66 +125,84 @@ async def sentence_prompt(ctx):
 
 #tropes prompt, CZ
 @prompt.child
+@lightbulb.option('number', 'number of tropes', type=int, max_value=6, default=2)
 @lightbulb.command('trope', 'generates two tropes')
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def trope_prompt(ctx):
-    trope1 = random.choice(tropes_list)
-    trope2 = random.choice(tropes_list)
-    await ctx.respond(f"Your tropes are: \n * {trope1} \n* {trope2}")
+    tropes = cz_tropes(ctx.options.number)
+    await ctx.respond(f"Your tropes are: \n * " + tropes)
+
 
 #word prompt, CZ default = 3
 @prompt.child
 @lightbulb.command('words', 'three randomly generated words')
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def word_prompt(ctx):
-    chosen_words = []
-    for i in range(3):
-        chosen_words.append(random.choice(words_list))
-    await ctx.respond("Use these words to prompt your writing: \n* " + " \n* ".join(chosen_words))
+    chosen_words = cz_words()
+    await ctx.respond("Use these words to prompt your writing: \n* " + chosen_words)
+
+
 
 # word count bonus challenge (random number generator
 # limit to short 150-500/medium 500-900/long 900-2000, then random number no rounding within those parameters)
-@bot.command
-@lightbulb.command('wc', 'bonus challenge! set a word count limit')
-@lightbulb.implements(lightbulb.SlashCommandGroup)
-async def wc(ctx):
-    pass
-
-@wc.child
-@lightbulb.command('short', 'give me a short fic goal')
-@lightbulb.implements(lightbulb.SlashSubCommand)
-async def short_fic(ctx):
-    await ctx.respond(f"Write a fic with exactly {random.randint(150, 500)} words.")
-
-
-
-@wc.child
-@lightbulb.command('medium', 'give me a medium fic goal')
-@lightbulb.implements(lightbulb.SlashSubCommand)
-async def med_fic(ctx):
-    await ctx.respond(f"Write a fic with exactly {random.randint(500, 900)} words.")
-
-
-@wc.child
-@lightbulb.command('long', 'give me a long fic goal')
-@lightbulb.implements(lightbulb.SlashSubCommand)
-async def long_fic(ctx):
-    await ctx.respond(f"Write a fic with exactly {random.randint(900, 2000)} words.")
-
-
-#testing space
 @prompt.child
-@lightbulb.command('testcharacter', 'prompt characters')
+@lightbulb.option('length', 'length request', choices=['short', 'medium', 'long', 'any'])
+@lightbulb.command('wc', 'set a word count limit')
 @lightbulb.implements(lightbulb.SlashSubCommand)
-async def test_character_prompt(ctx):
-    pass
-    #await ctx.respond(random.choice(char_list))
+async def length_prompt(ctx):
+    length = cz_length(ctx.options.length)
+    await ctx.respond("Write a fic with exactly " + length)
 
 
-#@bot.command
-#@lightbulb.command('prompt', 'prompt a character')
-#async def prompt(ctx):
-#    response = random.choice(characters)
-#    await ctx.send(response)
+# CZ prompt. Needs: user, short/med/long (optional), maybe filtering?
+# signup includes: UN, 2 characters, 2 tropes, 3 words 
+@bot.command
+@lightbulb.option('user', 'who is this prompt for?', type=str)
+@lightbulb.option('length', 'bonus length request', choices=['short', 'medium', 'long'], required=False)
+@lightbulb.option('categories', 'characters and/or tropes', choices=['characters', 'tropes', 'both'], required=False)
+@lightbulb.command('signup', 'full CZ prompt')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def cz_prompt(ctx):
+    user = ctx.options.user
+    
+    if ctx.options.length == None:
+        length = "Your fic must be within the fest limits of 150-7000 words. "
+    else:
+        length = "Your fic must be *exactly* " + cz_length(ctx.options.length)
+
+    if ctx.options.categories == 'characters':
+        characters = cz_characters(2)
+        tropes = "You have opted for No Tropes. "
+    elif ctx.options.categories == 'tropes':
+        tropes = cz_tropes(2)
+        characters = "You have opted for No Characters. "
+    elif ctx.options.categories == 'both':
+        characters = cz_characters(2)
+        tropes = cz_tropes(2)
+    else:
+        characters = "You have opted for No Characters. "
+        tropes = "You have opted for No Tropes. "
+    words = cz_words()
+
+
+    await ctx.respond(f'''Hi {user}!
+    Here are your selections for **Comfort Zone Fest**: 
+    \n### Tropes:
+    * {tropes}
+    \n### Characters:
+    * {characters}
+    
+    \n### Prompts:
+    * {words}
+    
+    \n### Length:
+    * {length}
+
+    As a reminder, you must use at least one (1) setting, at least two (2) prompts, and both characters. You may include however many other characters as you wish, as long as they are the main characters. Their relationship does not need to be romantic. If you have any questions, or are uncomfortable with any of the selections, please don't hesitate to let us know. Thank you, and happy writing!''')
+
+
+
+
+
 
 bot.run() 
