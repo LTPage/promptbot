@@ -3,7 +3,6 @@
  
 import hikari
 import lightbulb
-import yuyo
 import random
 import pandas as pd
 import list
