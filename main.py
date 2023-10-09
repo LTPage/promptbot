@@ -112,7 +112,7 @@ async def prompt(ctx):
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def character_prompt(ctx):
     characters = cz_characters(ctx.options.number)
-    await ctx.respond("Your characters are: " + ", ".join(characters))
+    await ctx.respond("Your characters are: \n* " + characters)
 
 #sentence prompt, not for CZ
 @prompt.child
