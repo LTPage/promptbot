@@ -7,7 +7,6 @@ import yuyo
 import random
 import pandas as pd
 import list
-import test2
 char_list = list.characters
 tropes_list = list.tropes
 words_list = list.words
@@ -198,7 +197,7 @@ async def cz_prompt(ctx):
     \n### Length:
     * {length}
 
-    As a reminder, you must use at least one (1) setting, at least two (2) prompts, and both characters. You may include however many other characters as you wish, as long as they are the main characters. Their relationship does not need to be romantic. If you have any questions, or are uncomfortable with any of the selections, please don't hesitate to let us know. Thank you, and happy writing!''')
+    As a reminder, you must use at least one (1) assigned character or trope. If you opted into a word count target, your goal is to hit that word count exactly. If you have any questions, or are uncomfortable with any of the selections, please don't hesitate to let us know. Thank you, and happy writing!''')
 
 
 
