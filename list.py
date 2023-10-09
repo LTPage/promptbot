@@ -121,7 +121,7 @@ tropes = ['[Insert Shop Type Here] AUs',
 'War Fic',
 'Canon Compliant',
 'Time Travel',
-'Strangers to Lovers/Meet-Cute,'
+'Strangers to Lovers/Meet-Cute',
 'Enemies to Lovers',
 'Marriage Law',
 'Amnesia',
